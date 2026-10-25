@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Área dos pais</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 760px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Área dos pais</h1>
+    <table>
+      <tr>
+        <th>Criança</th>
+        <th>Missão</th>
+        <th>Pontos</th>
+        <th>Estrelas</th>
+        <th>Data</th>
+      </tr>
+      {% for l in linhas %}
+      <tr>
+        <td>{{ l.nome }}</td>
+        <td>{{ l.titulo }}</td>
+        <td>{{ l.pontos }}</td>
+        <td>{{ "★" * l.estrelas }}</td>
+        <td>{{ l.data_hora }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5">Nenhuma tentativa registrada ainda.</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

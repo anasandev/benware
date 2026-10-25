@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bit, o robô tutor</title>
+    <style>
+      :root {
+        --bg: #eef3ff;
+        --card: #fff;
+        --ink: #1d2540;
+        --pri: #3b6cff;
+        --line: #d5ddf5;
+        --star: #f5b301;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #12162b;
+          --card: #1c2240;
+          --ink: #eef1ff;
+          --pri: #6f93ff;
+          --line: #2e3760;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Trebuchet MS", system-ui, sans-serif;
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      .card {
+        background: var(--card);
+        border: 2px solid var(--line);
+        border-radius: 20px;
+        padding: 20px;
+      }
+      .robo {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .bot {
+        flex: none;
+        width: 96px;
+      }
+      .bot svg {
+        width: 96px;
+      }
+      .bubble {
+        background: var(--bg);
+        border: 2px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        font-size: 18px;
+        line-height: 1.4;
+        flex: 1;
+      }
+      .btn {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 16px;
+        margin-top: 10px;
+        border-radius: 14px;
+        border: 2px solid var(--pri);
+        background: var(--card);
+        color: var(--ink);
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .btn.main {
+        background: var(--pri);
+        color: #fff;
+      }
+      input {
+        font-size: 20px;
+        padding: 14px;
+        width: 100%;
+        border-radius: 12px;
+        border: 2px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+        margin-top: 10px;
+      }
+      .bar {
+        height: 14px;
+        background: var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 6px 0 14px;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        background: var(--pri);
+      }
+      .stars {
+        font-size: 48px;
+        text-align: center;
+        letter-spacing: 6px;
+      }
+      .on {
+        color: var(--star);
+      }
+      .off {
+        color: var(--line);
+      }
+      .mut {
+        font-size: 14px;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap"><div id="app"></div></div>
+    <script>
+      var BOT =
+        '<svg viewBox="0 0 96 110"><circle cx="48" cy="6" r="5" fill="#f5b301"/><line x1="48" y1="11" x2="48" y2="18" stroke="#3b6cff" stroke-width="3"/><rect x="12" y="18" width="72" height="56" rx="16" fill="#9fb8ff" stroke="#3b6cff" stroke-width="3"/><circle cx="34" cy="42" r="8" fill="#fff"/><circle cx="62" cy="42" r="8" fill="#fff"/><circle cx="34" cy="42" r="4" fill="#1d2540"/><circle cx="62" cy="42" r="4" fill="#1d2540"/><MOUTH/><rect x="24" y="78" width="48" height="26" rx="8" fill="#6f93ff" stroke="#3b6cff" stroke-width="3"/></svg>';
+      var BOCA = {
+        feliz:
+          '<path d="M32 58 Q48 70 64 58" stroke="#1d2540" stroke-width="3" fill="none"/>',
+        triste:
+          '<path d="M34 64 Q48 54 62 64" stroke="#1d2540" stroke-width="3" fill="none"/>',
+        neutro:
+          '<line x1="36" y1="62" x2="60" y2="62" stroke="#1d2540" stroke-width="3"/>',
+      };
+      function bot(h) {
+        return BOT.replace("<MOUTH/>", BOCA[h || "neutro"]);
+      }
+      function esc(s) {
+        var d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      var S = {
+        tela: "home",
+        nome: "",
+        licao: null,
+        i: 0,
+        fb: null,
+        erros: 0,
+        inicio: 0,
+        respostas: [],
+        res: null,
+        msg: "",
+      };
+      var app = document.getElementById("app");
+      function render() {
+        var h = "";
+        if (S.tela == "missao") {
+          var p = S.licao.perguntas[S.i];
+          var fala =
+            S.fb === null
+              ? esc(p.texto)
+              : S.fb
+                ? "Isso! Mandou muito bem, " + esc(S.nome) + "!"
+                : "Quase! Vamos tentar de novo, sem pressa.";
+          h =
+            '<div class="card"><div class="mut">Pergunta ' +
+            (S.i + 1) +
+            " de " +
+            S.licao.perguntas.length +
+            '</div><div class="bar"><i style="width:' +
+            (S.i / S.licao.perguntas.length) * 100 +
+            '%"></i></div>' +
+            '<div class="robo"><div class="bot">' +
+            bot(S.fb === null ? "neutro" : S.fb ? "feliz" : "triste") +
+            '</div><div class="bubble">' +
+            fala +
+            "</div></div>";
+          if (S.fb === true) {
+            h +=
+              '<button class="btn main" onclick="proxima()">Continuar</button>';
+          } else {
+            p.opcoes.forEach(function (o, k) {
+              h +=
+                '<button class="btn" onclick="responder(' +
+                k +
+                ')">' +
+                esc(o) +
+                "</button>";
+            });
+          }
+          h += "</div>";
+        } else if (S.tela == "fim") {
+          var r = S.res || { pontos: 0, estrelas: 1 };
+          h =
+            '<div class="card"><div class="robo"><div class="bot">' +
+            bot("feliz") +
+            '</div><div class="bubble">Missão cumprida, ' +
+            esc(S.nome) +
+            "! Você fez " +
+            r.pontos +
+            " pontos!" +
+            (S.msg ? "<br><small>" + S.msg + "</small>" : "") +
+            '</div></div><div class="stars">' +
+            [1, 2, 3]
+              .map(function (n) {
+                return (
+                  '<span class="' +
+                  (n <= r.estrelas ? "on" : "off") +
+                  '">★</span>'
+                );
+              })
+              .join("") +
+            '</div><button class="btn main" onclick="inicio()">Jogar de novo</button></div>';
+        } else {
+          h =
+            '<div class="card"><div class="robo"><div class="bot">' +
+            bot("feliz") +
+            '</div><div class="bubble">Oi! Eu sou o <b>Bit</b>, o robô da casa. Qual é o seu nome?</div></div><input id="nome" maxlength="30" placeholder="Digite seu nome" value="' +
+            esc(S.nome) +
+            '"><button class="btn main" onclick="comecar()">Começar missão</button></div>';
+        }
+        app.innerHTML = h;
+      }
+      function inicio() {
+        S.tela = "home";
+        render();
+      }
+      function comecar() {
+        S.nome = document.getElementById("nome").value.trim() || "amigo";
+        fetch("/api/missao/1")
+          .then(function (r) {
+            return r.json();
+          })
+          .then(function (l) {
+            S.licao = l;
+            S.i = 0;
+            S.fb = null;
+            S.respostas = [];
+            S.erros = 0;
+            S.inicio = Date.now();
+            S.tela = "missao";
+            render();
+          });
+      }
+      function responder(k) {
+        var p = S.licao.perguntas[S.i];
+        if (S.erros == 0) {
+          S.respostas.push({
+            pergunta_id: p.id,
+            escolha: k,
+            tempo_ms: Date.now() - S.inicio,
+          });
+        }
+        if (k == p.correta) {
+          S.fb = true;
+        } else {
+          S.fb = false;
+          S.erros++;
+          setTimeout(function () {
+            S.fb = null;
+            render();
+          }, 1500);
+        }
+        render();
+      }
+      function proxima() {
+        S.i++;
+        S.fb = null;
+        S.erros = 0;
+        S.inicio = Date.now();
+        if (S.i >= S.licao.perguntas.length) {
+          finalizar();
+        } else {
+          render();
+        }
+      }
+      function finalizar() {
+        fetch("/api/tentativa", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: S.nome,
+            missao_id: S.licao.id,
+            respostas: S.respostas,
+          }),
+        })
+          .then(function (r) {
+            return r.json();
+          })
+          .then(function (d) {
+            S.res = d;
+            S.msg = "";
+            S.tela = "fim";
+            render();
+          })
+          .catch(function () {
+            S.res = { pontos: 0, estrelas: 1 };
+            S.msg = "Não consegui salvar seu progresso.";
+            S.tela = "fim";
+            render();
+          });
+      }
+      render();
+    </script>
+  </body>
+</html>

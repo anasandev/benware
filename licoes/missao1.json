@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "ordem": 1,
+  "titulo": "Acordar o robô",
+  "intro": "Preciso da sua ajuda para acordar! Responda as perguntas sobre o computador.",
+  "perguntas": [
+    {"id": "m1p1", "texto": "Qual destes é o MOUSE? Ele ajuda a apontar e clicar!", "opcoes": ["Teclado", "Mouse", "Tela"], "correta": 1},
+    {"id": "m1p2", "texto": "Para escrever o seu nome, usamos o…", "opcoes": ["Teclado", "Mouse", "Caixa de som"], "correta": 0},
+    {"id": "m1p3", "texto": "Onde as imagens do computador aparecem?", "opcoes": ["Tela", "Teclado", "Mouse"], "correta": 0},
+    {"id": "m1p4", "texto": "Qual peça faz o som sair do computador?", "opcoes": ["Caixa de som", "Mouse", "Tela"], "correta": 0},
+    {"id": "m1p5", "texto": "Para clicar em um botão, usamos o…", "opcoes": ["Teclado", "Mouse", "Fone de ouvido"], "correta": 1}
+  ]
+}
