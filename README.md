@@ -1,4 +1,4 @@
-# Robô educativo (Bit)
+# Robô educativo (Benware)
 
 ## Rodar
     pip install -r requirements.txt
